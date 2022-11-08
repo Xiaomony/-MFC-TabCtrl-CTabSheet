@@ -1,4 +1,3 @@
-#include"pch.h"
 #include"CTabSheet.h"
 IMPLEMENT_DYNAMIC(CTabSheet, CTabCtrl)
 
