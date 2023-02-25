@@ -53,4 +53,5 @@ public:
 	int FindPage(CString pagename);
 	//通过名称获取页面page结构体
 	BOOL FindPage(CString pagename,page &p);
+	afx_msg void OnSize(UINT nType, int cx, int cy);
 };

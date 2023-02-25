@@ -1,8 +1,10 @@
 #include"CTabSheet.h"
+#include"pch.h"
 IMPLEMENT_DYNAMIC(CTabSheet, CTabCtrl)
 
 BEGIN_MESSAGE_MAP(CTabSheet,CTabCtrl)
 ON_NOTIFY_REFLECT(TCN_SELCHANGE, OnTcnSelchange)
+ON_WM_SIZE()
 END_MESSAGE_MAP()
 
 CTabSheet::CTabSheet()
@@ -21,8 +23,8 @@ void CTabSheet::OnTcnSelchange(NMHDR* pNMHDR, LRESULT* pResult)
 	CRect rec;
 	GetClientRect(&rec);
 	int a=GetCurFocus();
-	pages[current_page].pageItem->SetWindowPos(NULL, pagex, pagey, rec.Width(), rec.Height(), SWP_HIDEWINDOW);
-	pages[a].pageItem->SetWindowPos(NULL, pagex, pagey, rec.Width(), rec.Height(), SWP_SHOWWINDOW);
+	pages[current_page].pageItem->SetWindowPos(NULL, pagex, pagey, rec.Width() - pagex, rec.Height() - pagey, SWP_HIDEWINDOW);
+	pages[a].pageItem->SetWindowPos(NULL, pagex, pagey, rec.Width() - pagex, rec.Height() - pagey, SWP_SHOWWINDOW);
 	current_page = a;
 }
 
@@ -49,19 +51,19 @@ BOOL CTabSheet::AddPage(int pagenum, LPCTSTR pagename, UINT pageID,CDialog *pPag
 	if (b == FALSE) return FALSE;
 	if (current_page == -1)
 	{
-		b = pPage->SetWindowPos(NULL,pagex,pagey, rec.Width(), rec.Height(), SWP_SHOWWINDOW);
+		b = pPage->SetWindowPos(NULL, pagex, pagey, rec.Width() - pagex, rec.Height() - pagey, SWP_SHOWWINDOW);
 		current_page = pagenum;
 		if (whether_show_now == FALSE) return NO_CURRENT_PAGE;
 		return b;
 	}
 	if (whether_show_now)
 	{
-		pages[current_page].pageItem->SetWindowPos(NULL, pagex, pagey, rec.Width(), rec.Height(), SWP_HIDEWINDOW);
-		b = pPage->SetWindowPos(NULL, pagex, pagey, rec.Width(), rec.Height(), SWP_SHOWWINDOW);
+		pages[current_page].pageItem->SetWindowPos(NULL, pagex, pagey, rec.Width() - pagex, rec.Height() - pagey, SWP_HIDEWINDOW);
+		b = pPage->SetWindowPos(NULL, pagex, pagey, rec.Width() - pagex, rec.Height() - pagey, SWP_SHOWWINDOW);
 		SetCurFocus(pagenum);
 	}
 	else
-		b=pPage->SetWindowPos(NULL, pagex, pagey, rec.Width(), rec.Height(), SWP_HIDEWINDOW);
+		b=pPage->SetWindowPos(NULL, pagex, pagey, rec.Width() - pagex, rec.Height() - pagey, SWP_HIDEWINDOW);
 	return b;
 }
 
@@ -116,7 +118,7 @@ BOOL CTabSheet::DeletePage(int pagenum)
 		return DELETE_OUT;
 	CRect rec;
 	GetClientRect(&rec);
-	pages[pagenum].pageItem->SetWindowPos(NULL, pagex, pagey, rec.Width(), rec.Height(), SWP_HIDEWINDOW);
+	pages[pagenum].pageItem->SetWindowPos(NULL, pagex, pagey, rec.Width() - pagex, rec.Height() - pagey, SWP_HIDEWINDOW);
 	DeleteItem(pagenum);
 	pages.erase(pages.begin()+pagenum);
 	if (pages.size() == 0)
@@ -127,17 +129,17 @@ BOOL CTabSheet::DeletePage(int pagenum)
 	if (current_page==pagenum)
 	{
 		if (current_page == 0)
-			pages[pagenum].pageItem->SetWindowPos(NULL, pagex, pagey, rec.Width(), rec.Height(), SWP_SHOWWINDOW);
+			pages[pagenum].pageItem->SetWindowPos(NULL, pagex, pagey, rec.Width() - pagex, rec.Height() - pagey, SWP_SHOWWINDOW);
 		else
 		{
 			current_page = pagenum - 1;
-			pages[pagenum - 1].pageItem->SetWindowPos(NULL, pagex, pagey, rec.Width(), rec.Height(), SWP_SHOWWINDOW);
+			pages[pagenum - 1].pageItem->SetWindowPos(NULL, pagex, pagey, rec.Width() - pagex, rec.Height() - pagey, SWP_SHOWWINDOW);
 		}
 	}
 	else if (current_page>pagenum)
 	{
 		current_page--;
-		pages[current_page].pageItem->SetWindowPos(NULL, pagex, pagey, rec.Width(), rec.Height(), SWP_SHOWWINDOW);
+		pages[current_page].pageItem->SetWindowPos(NULL, pagex, pagey, rec.Width() - pagex, rec.Height() - pagey, SWP_SHOWWINDOW);
 	}
 	return TRUE;
 }
@@ -167,4 +169,17 @@ BOOL CTabSheet::FindPage(CString pagename, page &p)
 			return TRUE;
 		}
 	return FALSE;
+}
+
+
+void CTabSheet::OnSize(UINT nType, int cx, int cy)
+{
+	CTabCtrl::OnSize(nType, cx, cy);
+
+	if (current_page == -1)
+		return;
+
+	CRect rec;
+	GetClientRect(&rec);
+	pages[current_page].pageItem->SetWindowPos(NULL, pagex, pagey, rec.Width() - pagex, rec.Height() - pagey, SWP_SHOWWINDOW);
 }
